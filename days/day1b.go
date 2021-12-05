@@ -1,35 +1,26 @@
-package main
+package days
 
 import (
-	"fmt"
-  "os"
-  "bufio"
-  "strconv"
-)	
+    "adventofcode/m/v2/util"
+    "fmt"
+    "strconv"
+)
 
-func main() {
-    if len(os.Args) < 2 {
-        fmt.Println("Missing parameter, provide file name!")
-        return
-    }
+func Day1b(inputPath string) {
 
-    f, err := os.Open(os.Args[1])
-    if err != nil {
-        fmt.Println("Can't open file:", os.Args[1])
-        panic(err)
-    }
-
-    r := bufio.NewReader(f)
-    line, err := Readln(r)
+    s := util.LineScanner(inputPath)
+    ok := s.Scan()
+    line := s.Text()
 
     var (
       val int = 0
       numbers []int = make([]int, 0)
     )
-    for err == nil {
-        val, err = strconv.Atoi(line)
+    for ok {
+        val, _ = strconv.Atoi(line)
         numbers = append(numbers, val)
-        line, err = Readln(r)
+        ok = s.Scan()
+        line = s.Text()
     }
     
     count, err := CountIncreasedWindows(&numbers)
@@ -68,17 +59,4 @@ func CountIncreasedWindows(numbers *[]int) (int, error) {
     }
 
     return count, nil
-}
-
-func Readln(r *bufio.Reader) (string, error) {
-  var (isPrefix bool = true
-       err error = nil
-       line, ln []byte
-      )
-
-  for isPrefix && err == nil {
-      line, isPrefix, err = r.ReadLine()
-      ln = append(ln, line...)
-  }
-  return string(ln),err
 }

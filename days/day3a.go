@@ -1,35 +1,27 @@
-package main
+package days
 
 import (
+    "adventofcode/m/v2/util"
     "fmt"
-  "os"
-  "bufio"
-  "strconv"
+    "strconv"
 )	
 
-func main() {
-    if len(os.Args) < 2 {
-        fmt.Println("Missing parameter, provide file name!")
-        return
-    }
+func Day3a(inputPath string) {
 
-    f, err := os.Open(os.Args[1])
-    if err != nil {
-        fmt.Println("Can't open file:", os.Args[1])
-        panic(err)
-    }
+    s := util.LineScanner(inputPath)
+    ok := s.Scan()
+    line := s.Text()
 
-    r := bufio.NewReader(f)
-    line, err := Readln(r)
-    
     totalbits := len(line)
     oneBitsInColumn := make([]int, totalbits)
     rows := 1 
-    for err == nil {
+    for ok {
       for i, b := range line {
         oneBitsInColumn [i] += asBit(b)
       }
-      line, err = Readln(r)
+
+      ok = s.Scan()
+      line = s.Text()
       rows ++
     }
 
@@ -71,17 +63,4 @@ func asBit(r rune) int {
   }
 
   return 0
-}
-
-func Readln(r *bufio.Reader) (string, error) {
-  var (isPrefix bool = true
-       err error = nil
-       line, ln []byte
-      )
-
-  for isPrefix && err == nil {
-      line, isPrefix, err = r.ReadLine()
-      ln = append(ln, line...)
-  }
-  return string(ln),err
 }

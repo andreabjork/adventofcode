@@ -1,28 +1,17 @@
-package main
+package days
 
 import (
-	"fmt"
-  "os"
-  "bufio"
-  "strconv"
-)	
+    "adventofcode/m/v2/util"
+    "fmt"
+    "strconv"
+)
 
-func main() {
-    if len(os.Args) < 2 {
-        fmt.Println("Missing parameter, provide file name!")
-        return
-    }
+func Day1a(inputPath string) {
 
-    f, err := os.Open(os.Args[1])
-    if err != nil {
-        fmt.Println("Can't open file:", os.Args[1])
-        panic(err)
-    }
+    s := util.LineScanner(inputPath)
+    ok := s.Scan()
+    line := s.Text()
 
-    r := bufio.NewReader(f)
-    line, err := Readln(r)
-
-    // Count initialized as -1 to account
     // for the first value being counted as
     // an increase
     var (
@@ -30,29 +19,17 @@ func main() {
         prevVal int = -1
         val int = 0
     )
-    for err == nil {
-        val, err = strconv.Atoi(line)
+    for ok {
+        val, _ = strconv.Atoi(line)
         if val > prevVal {
             count++
         }
 
         prevVal = val
         // Read next, if hasNext:
-        line, err = Readln(r)
+        ok = s.Scan()
+        line = s.Text()
     }
 
     fmt.Printf("Number of increases: %d", count)
-}
-
-func Readln(r *bufio.Reader) (string, error) {
-  var (isPrefix bool = true
-       err error = nil
-       line, ln []byte
-      )
-
-  for isPrefix && err == nil {
-      line, isPrefix, err = r.ReadLine()
-      ln = append(ln, line...)
-  }
-  return string(ln),err
 }

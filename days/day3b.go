@@ -1,27 +1,16 @@
-package main
+package days
 
 import (
-    "fmt"
-  "os"
+  "adventofcode/m/v2/util"
   "bufio"
+  "fmt"
   "strconv"
-)	
+)
 
-func main() {
-    if len(os.Args) < 2 {
-        fmt.Println("Missing parameter, provide file name!")
-        return
-    }
+func Day3b(inputPath string) {
+    s := util.LineScanner(inputPath)
+    root := createTree(s)
 
-    f, err := os.Open(os.Args[1])
-    if err != nil {
-        fmt.Println("Can't open file:", os.Args[1])
-        panic(err)
-    }
-
-    r := bufio.NewReader(f)
-
-    root := createTree(r)
     oxygen_generator_rating := root.traverseHeaviest("")
     co2_scrubber_rating := root.traverseLightest("")
 
@@ -46,6 +35,37 @@ type Node struct {
   weight  int // The weight of a node is the size of the node's subtree.
   left    *Node
   right   *Node
+}
+
+// Create a tree. Whenever we add a binary number to the tree,
+// traverse one edge to the left if the next digit is 0, otherwise
+// one edge to the right. Update the weight of each node you traverse.
+//
+func createTree(s *bufio.Scanner) (*Node) {
+  ok := s.Scan()
+  binary := s.Text()
+
+  rootNode := &Node{weight: 0, left: nil, right: nil}
+  node := rootNode
+
+  // Add every binary as a leaf
+  for ok {
+    // Traverse left or right depending on bit,
+    // and update weights
+    for _, bit := range binary {
+      if bit == '0' {
+        node = node.moveLeft() // adds +1 to left weight
+      } else {
+        node = node.moveRight() // adds +1 to right weight
+      }
+    }
+
+    node = rootNode
+    ok = s.Scan()
+    binary = s.Text()
+  }
+
+  return rootNode
 }
 
 func (n *Node) moveLeft() (*Node) {
@@ -106,46 +126,4 @@ func (n Node) traverseHeaviest(path string) (string) {
   }
 
   return (*next).traverseHeaviest(path)
-}
-
-
-// Create a tree. Whenever we add a binary number to the tree,
-// traverse one edge to the left if the next digit is 0, otherwise
-// one edge to the right. Update the weight of each node you traverse.
-//
-func createTree(r *bufio.Reader) (*Node) {
-  binary, err := Readln(r)
-  rootNode := &Node{weight: 0, left: nil, right: nil}
-  node := rootNode
-
-  // Add every binary as a leaf
-  for err == nil {
-    // Traverse left or right depending on bit,
-    // and update weights
-    for _, bit := range binary {
-      if bit == '0' {
-        node = node.moveLeft() // adds +1 to left weight
-      } else {
-        node = node.moveRight() // adds +1 to right weight
-      }
-    }
-
-    node = rootNode
-    binary, err = Readln(r)
-  }
-  
-  return rootNode
-}
-
-func Readln(r *bufio.Reader) (string, error) {
-  var (isPrefix bool = true
-       err error = nil
-       line, ln []byte
-      )
-
-  for isPrefix && err == nil {
-      line, isPrefix, err = r.ReadLine()
-      ln = append(ln, line...)
-  }
-  return string(ln),err
 }

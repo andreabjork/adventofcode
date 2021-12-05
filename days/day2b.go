@@ -1,34 +1,22 @@
-package main
+package days
 
 import (
+    "adventofcode/m/v2/util"
     "fmt"
-  "os"
-  "errors"
-  "bufio"
-  "strings"
-  "strconv"
-)	
+    "strconv"
+    "strings"
+)
 
-func main() {
-    if len(os.Args) < 2 {
-        fmt.Println("Missing parameter, provide file name!")
-        return
-    }
+func Day2b(inputPath string) {
 
-    f, err := os.Open(os.Args[1])
-    if err != nil {
-        fmt.Println("Can't open file:", os.Args[1])
-        panic(err)
-    }
-
-    r := bufio.NewReader(f)
-    line, err := Readln(r)
+    s := util.LineScanner(inputPath)
+    ok := s.Scan()
+    line := s.Text()
 
     course := map[string]int{"forward": 0, "up": 0, "down": 0, "depth": 0}
-    for err == nil {
+    for ok {
         split := strings.Split(line, " ") 
         if len(split) != 2 {
-          err = errors.New("Reached end of input")
           break
         }
 
@@ -44,12 +32,9 @@ func main() {
         if key == "forward" {
           course["depth"] += val*(course["down"]-course["up"])
         }
-        //fmt.Println("=================")
-        //fmt.Println(split)
-        //fmt.Println(course)
-        //fmt.Println("=================")
 
-        line, err = Readln(r)
+        ok = s.Scan()
+        line = s.Text()
     }
     
 
@@ -57,17 +42,4 @@ func main() {
     fmt.Printf("Depth: %d\n", course["depth"])
     fmt.Printf("Forward: %d\n", course["forward"])
     fmt.Printf("Multiple: %d\n", course["depth"]*course["forward"])
-}
-
-func Readln(r *bufio.Reader) (string, error) {
-  var (isPrefix bool = true
-       err error = nil
-       line, ln []byte
-      )
-
-  for isPrefix && err == nil {
-      line, isPrefix, err = r.ReadLine()
-      ln = append(ln, line...)
-  }
-  return string(ln),err
 }

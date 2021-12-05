@@ -6,116 +6,97 @@ import (
 	"strings"
 )
 
-type Line struct {
-	x1 	int
-	y1   int
-	x2   int
-	y2   int
+func Day5a(inputFile string) {
+	Day5(inputFile, false)
 }
 
-func Day5a(inputFile string) {
-	ws := util.LineScanner(inputFile)
-	read, ok := util.Read(ws)
+func Day5b(inputFile string) {
+	Day5(inputFile, true)
+}
 
-	isctPts := 0
-	var line Line
-	var horizOrVertical bool
+type Point struct {
+	x	int
+	y   int
+}
+
+func Day5(inputFile string, traverseAll bool) {
+	ws := util.LineScanner(inputFile)
+	read, hasNext := util.Read(ws)
+
+	// Assuming 1000x1000 grid
 	coverageMap := make([][]int, 1000)
 	for i := range coverageMap {
 		coverageMap[i] = make([]int, 1000)
 	}
-	for ok {
-		line, horizOrVertical = toLine(read)
-		if horizOrVertical {
-			isctPts += mark(coverageMap, line)
+
+	var (
+		a Point
+		b Point
+		c Point
+		isctPts = 0
+	)
+	// Read in each segment
+	for hasNext {
+		a, b = toEndpoints(read) // promises a.x <= b.x
+		c = Point{x: -1, y: -1}
+		// traverse each segment, or horizontal+vertical segments only
+		if traverseAll || a.x == b.x || a.y == b.y {
+			reachedEnd := false
+			for !reachedEnd {
+				// First traversal starts at point a
+				if c.x == -1 {
+					c.x = a.x
+					c.y = a.y
+				} else {
+					// Otherwise move point c +1 in each direction
+					if a.x < b.x {
+						c.x++
+					}
+					if a.y < b.y {
+						c.y++
+					} else if a.y > b.y {
+						c.y--
+					}
+				}
+
+				// Check if we've traversed to the endpoint
+				if c.x == b.x && c.y == b.y {
+					reachedEnd = true
+				}
+
+				coverageMap[c.x][c.y]++
+				// Only bump if we just found the first intersect
+				if coverageMap[c.x][c.y] == 2 {
+					isctPts++
+				}
+			}
+
 		}
 
-		read, ok = util.Read(ws)
+		read, hasNext = util.Read(ws)
 	}
 
 	fmt.Printf("Points which intersect at least 2 lines: %d", isctPts)
 }
 
-func mark(cmap [][]int, line Line) int {
-	newIntersects := 0
-	// vertical
-	if line.x1 == line.x2 {
-		for y := line.y1; y <= line.y2; y++ {
-			cmap[line.x1][y]++
-			if cmap[line.x1][y] == 2 {
-				newIntersects++
-			}
-		}
-	}
-
-	// horizontal
-	if line.y1 == line.y2 {
-		for x := line.x1; x <= line.x2; x++ {
-			cmap[x][line.y1]++
-			if cmap[x][line.y1] == 2 {
-				newIntersects++
-			}
-		}
-	}
-
-	return newIntersects
-}
-
-func toLine(read string) (Line, bool) {
-
+func toEndpoints(read string) (Point, Point) {
 	coords := strings.Split(read, " -> ")
 	pt1 := strings.Split(coords[0], ",")
 	pt2 := strings.Split(coords[1], ",")
 
-	X1 := util.ToInt(pt1[0])
-	Y1 := util.ToInt(pt1[1])
-	X2 := util.ToInt(pt2[0])
-	Y2 := util.ToInt(pt2[1])
-
-	var (
-		x1	int
-		x2	int
-		y1	int
-		y2	int
-	)
-	if X1 == X2 {
-		x1 = X1
-		x2 = X2
-		if Y1 <= Y2 {
-			y1 = Y1
-			y2 = Y2
-		} else {
-			y1 = Y2
-			y2 = Y1
-		}
-
-		return Line{
-			x1: x1,
-			y1: y1,
-			x2: x2,
-			y2: y2,
-		}, true
+	p1 := Point{
+		x: util.ToInt(pt1[0]),
+		y: util.ToInt(pt1[1]),
 	}
 
-	if Y1 == Y2 {
-		y1 = Y1
-		y2 = Y2
-		if X1 <= X2 {
-			x1 = X1
-			x2 = X2
-		} else {
-			x1 = X2
-			x2 = X1
-		}
-
-		return Line{
-			x1: x1,
-			y1: y1,
-			x2: x2,
-			y2: y2,
-		}, true
+	p2 := Point{
+		x: util.ToInt(pt2[0]),
+		y: util.ToInt(pt2[1]),
 	}
 
-	// Skip line if it's not horizontal or vertical
-	return Line{}, false
+	if p1.x <= p2.x {
+		return p1, p2
+	} else {
+		return p2, p1
+	}
 }
