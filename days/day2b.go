@@ -1,7 +1,7 @@
 package main
 
 import (
-  "fmt"
+    "fmt"
   "os"
   "errors"
   "bufio"
@@ -24,11 +24,9 @@ func main() {
     r := bufio.NewReader(f)
     line, err := Readln(r)
 
-    course := map[string]int{"forward": 0, "up": 0, "down": 0}
+    course := map[string]int{"forward": 0, "up": 0, "down": 0, "depth": 0}
     for err == nil {
         split := strings.Split(line, " ") 
-        fmt.Println(split)
-        fmt.Println(len(split))
         if len(split) != 2 {
           err = errors.New("Reached end of input")
           break
@@ -42,15 +40,23 @@ func main() {
         }
 
         course[key] += val
+        
+        if key == "forward" {
+          course["depth"] += val*(course["down"]-course["up"])
+        }
+        //fmt.Println("=================")
+        //fmt.Println(split)
+        //fmt.Println(course)
+        //fmt.Println("=================")
+
         line, err = Readln(r)
     }
     
 
     fmt.Println(course)
-    depth := course["down"]-course["up"]
-    fmt.Printf("Depth: %d\n", depth)
+    fmt.Printf("Depth: %d\n", course["depth"])
     fmt.Printf("Forward: %d\n", course["forward"])
-    fmt.Printf("Multiple: %d\n", depth*course["forward"])
+    fmt.Printf("Multiple: %d\n", course["depth"]*course["forward"])
 }
 
 func Readln(r *bufio.Reader) (string, error) {

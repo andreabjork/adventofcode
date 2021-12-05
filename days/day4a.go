@@ -20,7 +20,7 @@ type BingoSheetResult struct {
 	sumUnmarked	int
 }
 
-func Day4(part string, inputFile string) {
+func Day4a(inputFile string) {
 	ws := util.WordScanner(inputFile)
 	line, _ := util.Read(ws)
 
