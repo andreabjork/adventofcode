@@ -33,7 +33,5 @@ func day2a(inputPath string) {
     }
     
     depth := course["down"]-course["up"]
-    fmt.Printf("Depth: %d\n", depth)
-    fmt.Printf("Forward: %d\n", course["forward"])
-    fmt.Printf("Multiple: %d\n", depth*course["forward"])
+    fmt.Printf("Depth*Forward: %d\n", depth*course["forward"])
 }

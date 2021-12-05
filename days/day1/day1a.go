@@ -31,5 +31,5 @@ func day1a(inputPath string) {
         line = s.Text()
     }
 
-    fmt.Printf("Number of increases: %d", count)
+    fmt.Printf("Number of increases: %d\n", count)
 }

@@ -37,9 +37,6 @@ func day3a(inputPath string) {
       }
     }
 
-    fmt.Printf("Gamma: %s\n", gamma)
-    fmt.Printf("Epsilon: %s\n", epsilon)
-
     decGamma, err := strconv.ParseInt(gamma, 2, 64)
     if err != nil {
       fmt.Printf("Cannot convert %s to decimal", gamma)
@@ -52,8 +49,6 @@ func day3a(inputPath string) {
       panic(err)
     }
 
-    fmt.Printf("Gamma Decimal: %d\n", decGamma)
-    fmt.Printf("Epsilon Decimal: %d\n", decEpsilon)
     fmt.Printf("Gamma*Epsilon: %d\n", decGamma*decEpsilon)
 }
 

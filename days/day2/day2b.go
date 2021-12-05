@@ -36,10 +36,5 @@ func day2b(inputPath string) {
         ok = s.Scan()
         line = s.Text()
     }
-    
-
-    fmt.Println(course)
-    fmt.Printf("Depth: %d\n", course["depth"])
-    fmt.Printf("Forward: %d\n", course["forward"])
-    fmt.Printf("Multiple: %d\n", course["depth"]*course["forward"])
+    fmt.Printf("Depth*Forward: %d\n", course["depth"]*course["forward"])
 }

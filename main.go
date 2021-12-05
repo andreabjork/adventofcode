@@ -1,7 +1,6 @@
 package main
 
 import (
-    "adventofcode/m/v2/days"
     "adventofcode/m/v2/days/day1"
     "adventofcode/m/v2/days/day2"
     "adventofcode/m/v2/days/day3"
@@ -19,7 +18,6 @@ var dayfuncs = map[int]interface{}{
     3:  day3.Day3,
     4:  day4.Day4,
     5:  day5.Day5,
-    6:  days.Undone,
 }
 
 func main() {
@@ -35,7 +33,7 @@ func main() {
         real_input string
     )
     if os.Args[1] == "all" {
-        for d := range dayfuncs {
+        for d := 1; d <= 5; d++ {
             test_input = fmt.Sprintf("inputs/day%d_test.txt", d)
             real_input = fmt.Sprintf("inputs/day%d.txt", d)
             runDay(d, 0, test_input)
@@ -49,8 +47,6 @@ func main() {
         test_input = fmt.Sprintf("inputs/day%d_test.txt", day)
         real_input = fmt.Sprintf("inputs/day%d.txt", day)
 
-
-
         if len(os.Args) > 3 && os.Args[3] == "test" {
             runDay(day, part, test_input)
         } else {
@@ -61,9 +57,9 @@ func main() {
 }
 
 func runDay(day int, part int, input string) {
-    fmt.Printf("Day %d:%d, Input: %s\n", day, part, input)
+    fmt.Printf("Day %d:%d < %s\n", day, part, input)
     start := time.Now()
     dayfuncs[day].(func(string, int))(input, part)
     elapsed := time.Now().Sub(start)
-    fmt.Printf("\nTime: %v\n\n", elapsed)
+    fmt.Printf("Time: %v\n\n", elapsed)
 }

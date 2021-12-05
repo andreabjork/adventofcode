@@ -28,7 +28,7 @@ func day1b(inputPath string) {
       fmt.Println("Error counting number of increases")
       panic(err)
     }
-    fmt.Printf("Number of increases: %d", count)
+    fmt.Printf("Number of increases: %d\n", count)
 }
 
 func CountIncreasedWindows(numbers *[]int) (int, error) {

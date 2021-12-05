@@ -77,7 +77,7 @@ func day5(inputFile string, traverseAll bool) {
 		read, hasNext = util.Read(ws)
 	}
 
-	fmt.Printf("Points which intersect at least 2 lines: %d", isctPts)
+	fmt.Printf("Intersecting points: %d\n", isctPts)
 }
 
 func toEndpoints(read string) (Point, Point) {

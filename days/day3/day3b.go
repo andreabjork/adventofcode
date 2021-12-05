@@ -25,9 +25,7 @@ func day3b(inputPath string) {
     }
 
     strconv.ParseInt(oxygen_generator_rating, 2, 64)
-    fmt.Printf("Oxygen Generator Rating: %s = %d\n", oxygen_generator_rating, decOGR)
-    fmt.Printf("CO2 Scrubber Rating: %s = %d\n", co2_scrubber_rating, decCO2SR)
-    fmt.Printf("Multiplied value: %d\n", decOGR*decCO2SR)
+    fmt.Printf("OGR*CO2SR: %d\n", decOGR*decCO2SR)
 }
 
 

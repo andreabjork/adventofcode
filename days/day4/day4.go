@@ -31,7 +31,7 @@ func day4a(inputFile string) {
 	// Mark bingoNumbers and update sum of unmarked
 	winningNumber, winningSheet, _ := markBingoSheets(bingoNumbers, bingoLookUp, totalSheets, 1)
 
-	fmt.Printf("Bingo! The sum of unmarked numbers on the winning sheet is: %d", winningNumber*winningSheet.sumUnmarked)
+	fmt.Printf("First bingo sum: %d\n", winningNumber*winningSheet.sumUnmarked)
 }
 
 func day4b(inputFile string) {
@@ -49,7 +49,7 @@ func day4b(inputFile string) {
 	// Mark bingoNumbers and update sum of unmarked
 	winningNumber, winningSheet, _ := markBingoSheets(bingoNumbers, bingoLookUp, totalSheets, len(totalSheets))
 
-	fmt.Printf("Bingo! The sum of unmarked numbers on the winning sheet is: %d", winningNumber*winningSheet.sumUnmarked)
+	fmt.Printf("Last bingo sum: %d\n", winningNumber*winningSheet.sumUnmarked)
 }
 
 type BingoPosition struct {
