@@ -1,4 +1,4 @@
-package days
+package day5
 
 import (
 	"adventofcode/m/v2/util"
@@ -30,9 +30,9 @@ func Day5(inputFile string, traverseAll bool) {
 	}
 
 	var (
-		a Point
-		b Point
-		c Point
+		a       Point
+		b       Point
+		c       Point
 		isctPts = 0
 	)
 	// Read in each segment

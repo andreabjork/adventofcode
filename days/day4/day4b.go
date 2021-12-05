@@ -1,4 +1,4 @@
-package days
+package day4
 
 import (
 	"adventofcode/m/v2/util"
@@ -18,9 +18,10 @@ type BingoSheetResult struct {
 	xInRow	[]int
 	xInCol	[]int
 	sumUnmarked	int
+	bingoNotFound bool
 }
 
-func Day4a(inputFile string) {
+func Day4b(inputFile string) {
 	ws := util.WordScanner(inputFile)
 	line, _ := util.Read(ws)
 
@@ -33,30 +34,37 @@ func Day4a(inputFile string) {
 	bingoLookUp, totalSheets := createBingoLookUpMap(ws)
 
 	// Mark bingoNumbers and update sum of unmarked
-	winningNumber, winningSheet, _ := markBingoSheets(bingoNumbers, bingoLookUp, totalSheets)
+	winningNumber, winningSheet, _ := markBingoSheets(bingoNumbers, bingoLookUp, totalSheets, len(totalSheets))
 
 	fmt.Printf("Bingo! The sum of unmarked numbers on the winning sheet is: %d", winningNumber*winningSheet.sumUnmarked)
 }
 
-func markBingoSheets(bingoNumbers []string, bingoLookUp map[int][]BingoPosition, marks []BingoSheetResult) (
+func markBingoSheets(bingoNumbers []string, bingoLookUp map[int][]BingoPosition, marks []BingoSheetResult, stopAt int) (
 	int,
 	BingoSheetResult,
 	error) {
 
+	numSheetsWithBingo := 0
 	for _, number := range bingoNumbers {
 		num := util.ToInt(number)
 		for _, pos := range bingoLookUp[num] {
-			// Update row count
-			marks[pos.onSheet].xInRow[pos.inRow]++
+			if marks[pos.onSheet].bingoNotFound {
+				// Update row count
+				marks[pos.onSheet].xInRow[pos.inRow]++
 
-			// Update col count
-			marks[pos.onSheet].xInCol[pos.inCol]++
+				// Update col count
+				marks[pos.onSheet].xInCol[pos.inCol]++
 
-			// Update sum of unmarked
-			marks[pos.onSheet].sumUnmarked -= num
+				// Update sum of unmarked
+				marks[pos.onSheet].sumUnmarked -= num
 
-			if marks[pos.onSheet].xInRow[pos.inRow] == 5 || marks[pos.onSheet].xInCol[pos.inCol] == 5 {
-				return num, marks[pos.onSheet], nil
+				if marks[pos.onSheet].xInRow[pos.inRow] == 5 || marks[pos.onSheet].xInCol[pos.inCol] == 5 {
+					numSheetsWithBingo++
+					marks[pos.onSheet].bingoNotFound = false
+					if numSheetsWithBingo == stopAt {
+						return num, marks[pos.onSheet], nil
+					}
+				}
 			}
 		}
 	}
@@ -103,6 +111,7 @@ func createBingoLookUpMap(ws *bufio.Scanner) (map[int][]BingoPosition, []BingoSh
 				xInRow:      make([]int, 5),
 				xInCol:      make([]int, 5),
 				sumUnmarked: sum,
+				bingoNotFound: true,
 			})
 			sheetNumber++
 			count = 0

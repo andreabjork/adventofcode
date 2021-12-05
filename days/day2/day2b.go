@@ -1,4 +1,4 @@
-package days
+package day2
 
 import (
     "adventofcode/m/v2/util"
@@ -7,13 +7,13 @@ import (
     "strings"
 )
 
-func Day2a(inputPath string) {
+func Day2b(inputPath string) {
 
     s := util.LineScanner(inputPath)
     ok := s.Scan()
     line := s.Text()
 
-    course := map[string]int{"forward": 0, "up": 0, "down": 0}
+    course := map[string]int{"forward": 0, "up": 0, "down": 0, "depth": 0}
     for ok {
         split := strings.Split(line, " ") 
         if len(split) != 2 {
@@ -28,12 +28,18 @@ func Day2a(inputPath string) {
         }
 
         course[key] += val
+        
+        if key == "forward" {
+          course["depth"] += val*(course["down"]-course["up"])
+        }
+
         ok = s.Scan()
         line = s.Text()
     }
     
-    depth := course["down"]-course["up"]
-    fmt.Printf("Depth: %d\n", depth)
+
+    fmt.Println(course)
+    fmt.Printf("Depth: %d\n", course["depth"])
     fmt.Printf("Forward: %d\n", course["forward"])
-    fmt.Printf("Multiple: %d\n", depth*course["forward"])
+    fmt.Printf("Multiple: %d\n", course["depth"]*course["forward"])
 }
