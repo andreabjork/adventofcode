@@ -6,12 +6,13 @@ import (
 	"strings"
 )
 
-func Day5a(inputFile string) {
-	Day5(inputFile, false)
-}
 
-func Day5b(inputFile string) {
-	Day5(inputFile, true)
+func Day5(inputFile string, part int) {
+	if part == 0 {
+		day5(inputFile, false)
+	} else {
+		day5(inputFile, true)
+	}
 }
 
 type Point struct {
@@ -19,7 +20,7 @@ type Point struct {
 	y   int
 }
 
-func Day5(inputFile string, traverseAll bool) {
+func day5(inputFile string, traverseAll bool) {
 	ws := util.LineScanner(inputFile)
 	read, hasNext := util.Read(ws)
 

@@ -7,7 +7,7 @@ import (
     "strings"
 )
 
-func Day2a(inputPath string) {
+func day2a(inputPath string) {
 
     s := util.LineScanner(inputPath)
     ok := s.Scan()

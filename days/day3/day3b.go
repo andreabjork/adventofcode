@@ -7,7 +7,7 @@ import (
   "strconv"
 )
 
-func Day3b(inputPath string) {
+func day3b(inputPath string) {
     s := util.LineScanner(inputPath)
     root := createTree(s)
 

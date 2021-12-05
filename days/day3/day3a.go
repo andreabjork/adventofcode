@@ -6,7 +6,7 @@ import (
     "strconv"
 )	
 
-func Day3a(inputPath string) {
+func day3a(inputPath string) {
 
     s := util.LineScanner(inputPath)
     ok := s.Scan()
