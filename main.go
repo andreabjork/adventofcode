@@ -6,6 +6,7 @@ import (
     "adventofcode/m/v2/days/day3"
     "adventofcode/m/v2/days/day4"
     "adventofcode/m/v2/days/day5"
+    "adventofcode/m/v2/days/day6"
     "adventofcode/m/v2/util"
     "fmt"
     "os"
@@ -18,6 +19,7 @@ var dayfuncs = map[int]interface{}{
     3:  day3.Day3,
     4:  day4.Day4,
     5:  day5.Day5,
+    6:  day6.Day6,
 }
 
 func main() {
@@ -44,6 +46,7 @@ func main() {
     } else {
         // Otherwise run the specified day
         day = util.ToInt(os.Args[1])
+        part = util.ToInt(os.Args[2])
         test_input = fmt.Sprintf("inputs/day%d_test.txt", day)
         real_input = fmt.Sprintf("inputs/day%d.txt", day)
 
