@@ -1,7 +1,7 @@
 package main
 
 import (
-    days "adventofcode/m/v2/days"
+    "adventofcode/m/v2/days"
     "adventofcode/m/v2/util"
     "fmt"
     "os"
@@ -31,7 +31,7 @@ func main() {
         real_input string
     )
     if os.Args[1] == "all" {
-        for d := 1; d <= 5; d++ {
+        for d := 1; d <= 7; d++ {
             test_input = fmt.Sprintf("inputs/day%d_test.txt", d)
             real_input = fmt.Sprintf("inputs/day%d.txt", d)
             runDay(d, 0, test_input)
