@@ -33,7 +33,6 @@ func day6(inputFile string, N int) {
 		oldFishDD int // expected due date of old fish, mod M
 	)
 	for _, ini := range initState {
-		// fish labelled 0 produces on day 1
 		dueDate = util.ToInt(ini) + 1
 		dueDates[dueDate]++
 		fish++
