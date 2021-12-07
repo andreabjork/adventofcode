@@ -39,6 +39,7 @@ func day7(inputFile string, d func(m int, x int) int) {
 		}
 	}
 
+	// Could search for the m in a much more optimal way but ¯\_(ツ)_/¯
 	for m := minM; m <= maxM; m++ {
 		s := 0
 		for _, x := range X {
@@ -54,7 +55,7 @@ func day7(inputFile string, d func(m int, x int) int) {
 	fmt.Printf("Minimum fuel: %d\n", minSum)
 }
 
-// Distance metric for part a
+// Distance metric for part a: you can also just cheat this iteration by calculating median directly
 func da(m int, x int) int {
 	return abs(m-x)
 }
