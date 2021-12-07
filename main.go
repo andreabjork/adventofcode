@@ -1,12 +1,7 @@
 package main
 
 import (
-    "adventofcode/m/v2/days/day1"
-    "adventofcode/m/v2/days/day2"
-    "adventofcode/m/v2/days/day3"
-    "adventofcode/m/v2/days/day4"
-    "adventofcode/m/v2/days/day5"
-    "adventofcode/m/v2/days/day6"
+    days "adventofcode/m/v2/days"
     "adventofcode/m/v2/util"
     "fmt"
     "os"
@@ -14,12 +9,13 @@ import (
 )
 
 var dayfuncs = map[int]interface{}{
-    1:  day1.Day1,
-    2:  day2.Day2,
-    3:  day3.Day3,
-    4:  day4.Day4,
-    5:  day5.Day5,
-    6:  day6.Day6,
+    1: days.Day1,
+    2: days.Day2,
+    3: days.Day3,
+    4: days.Day4,
+    5: days.Day5,
+    6: days.Day6,
+    7: days.Day7,
 }
 
 func main() {

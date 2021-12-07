@@ -1,4 +1,4 @@
-package day4
+package days
 
 import (
 	"adventofcode/m/v2/util"
