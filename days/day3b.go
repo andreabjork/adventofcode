@@ -24,7 +24,6 @@ func day3b(inputPath string) {
       fmt.Println("Error converting co2 scrubber rating %s to binary", co2_scrubber_rating)
     }
 
-    strconv.ParseInt(oxygen_generator_rating, 2, 64)
     fmt.Printf("OGR*CO2SR: %d\n", decOGR*decCO2SR)
 }
 
