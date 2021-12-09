@@ -50,12 +50,15 @@ func day9b(inputFile string) {
 	fmt.Printf("3 biggest: %d\n", multiple)
 }
 
+// Evaluate whether basin b is among the three biggest
+// basins found so far.
 func evaluate(b *Basin, biggest []*Basin) []*Basin {
 	if len(biggest) < 3 {
 		biggest = append(biggest, b)
 		return biggest
 	}
 
+	// Okay we could keep track of the minimum basin at all times...
 	min := (*biggest[0]).size
 	minIdx := 0
 	for idx, big := range biggest {
@@ -72,6 +75,10 @@ func evaluate(b *Basin, biggest []*Basin) []*Basin {
 	return biggest
 }
 
+// Explores from a point p in basin b.
+// Explore visits all adjacent points.
+// Explore returns if it's at a point with height 9,
+// a point already in the basin or a point outside of the cave.
 func explore(cave [][]int, b *Basin, p *Coord) *Basin {
 	// stop if point is outside of the cave
 	if (*p).x < 0 || (*p).x >= len(cave) || (*p).y < 0 || (*p).y >= len(cave[(*p).x]) {
@@ -103,6 +110,9 @@ func explore(cave [][]int, b *Basin, p *Coord) *Basin {
 	return b
 }
 
+// Bruteforce mapping of the cave; a point is a local
+// minima if all its adjacent neighbours (up, down, right, left)
+// are higher than it is.
 func mapCave(inputFile string) ([][]int, []*Coord, int) {
 	ws := util.LineScanner(inputFile)
 	line, ok := util.Read(ws)
