@@ -49,6 +49,66 @@ func day10b(inputFile string) {
 	fmt.Printf("Completion score: %d\n", scores[len(scores)/2])
 }
 
+var delimiters = map[rune]*Delim {
+	'(': {true, ')', 1 },
+	'[': {true, ']', 2 },
+	'{': {true, '}', 3 },
+	'<': {true, '>', 4 },
+	')': {false, '(', 3 },
+	']': {false, '[', 57},
+	'}': {false, '{', 1197},
+	'>': {false, '<', 25137},
+}
+// Returns the remaining stack, and the error score
+func checkSyntax(runes []rune) (*Stack, int) {
+	stack := Stack{nil }
+	for _, r := range runes {
+		d := delimiters[r]
+		if d.opening {
+			stack.push(d)
+		} else {
+			p, ok := stack.pop()
+			if !ok {
+				fmt.Println("Received closing delimiter on empty stack.")
+				break
+			} else if !p.closes(r) {
+				// fmt.Printf("Syntax error: Expected %s, found %s \n", string((*p).matcher), string(r))
+				return &stack, d.score
+			}
+		}
+	}
+
+	return &stack, 0
+}
+
+// Calculates the completion score from the remaining stack
+func completionScore(s *Stack) int {
+	total := 0
+	// Pop the rest of the stack and count the matrix
+	for p, ok := (*s).pop(); ok; {
+		total = 5*total + (*p).score
+		p, ok = (*s).pop()
+	}
+
+	return total
+}
+
+// ==========
+// DELIMITERS
+// ==========
+type Delim struct {
+	opening    bool
+	matcher    rune
+	score      int
+}
+
+func (d *Delim) closes(r rune) bool {
+	return (*d).matcher == r
+}
+
+// ====================
+// STACK IMPLEMENTATION
+// ====================
 type StackEle struct {
 	val		*Delim
 	next	*StackEle
@@ -71,57 +131,4 @@ func (s *Stack) pop() (*Delim, bool) {
 	(*s).top = (*s).top.next
 
 	return d, true
-}
-
-type Delim struct {
-	opening    bool
-	matcher    rune
-	score      int
-}
-
-func (d *Delim) closes(r rune) bool {
-	return (*d).matcher == r
-}
-
-var delimiters = map[rune]*Delim {
-	'(': {true, ')', 1 },
-	'[': {true, ']', 2 },
-	'{': {true, '}', 3 },
-	'<': {true, '>', 4 },
-	')': {false, '(', 3 },
-	']': {false, '[', 57},
-	'}': {false, '{', 1197},
-	'>': {false, '<', 25137},
-}
-
-func checkSyntax(runes []rune) (*Stack, int) {
-	stack := Stack{nil }
-	for _, r := range runes {
-		d := delimiters[r]
-		if d.opening {
-			stack.push(d)
-		} else {
-			p, ok := stack.pop()
-			if !ok {
-				fmt.Println("Received closing delimiter on empty stack.")
-				break
-			} else if !p.closes(r) {
-				// fmt.Printf("Syntax error: Expected %s, found %s \n", string((*p).matcher), string(r))
-				return &stack, d.score
-			}
-		}
-	}
-
-	return &stack, 0
-}
-
-func completionScore(s *Stack) int {
-	total := 0
-	// Pop the rest of the stack and count the matrix
-	for p, ok := (*s).pop(); ok; {
-		total = 5*total + (*p).score
-		p, ok = (*s).pop()
-	}
-
-	return total
 }
