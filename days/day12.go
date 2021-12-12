@@ -91,7 +91,6 @@ func (cs *CaveSystem) exploreFrom(p *Path) {
 	var path *Path
 	for idx, n := range (*p.curr()).neighbours {
 		if (*n).cType == Big || (*n).cType == End || ((*n).cType == Small && ((*p).visited[n] < 1 || (*p).bonusVisits > 0 )) {
-		// if p.canVisit(n) {
 			if (*n).cType == End {
 				(*cs).completedPaths++
 			}
