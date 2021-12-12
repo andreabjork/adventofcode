@@ -95,7 +95,7 @@ func explore(cave [][]int, b *Basin, p *Coord) *Basin {
 		return b
 	}
 
-	// otherwise add this point to the basin and continue exploring
+	// otherwise addCave this point to the basin and continue exploring
 	if (*b).coords[(*p).x] == nil {
 		(*b).coords[(*p).x] = make(map[int]bool)
 	}
@@ -111,7 +111,7 @@ func explore(cave [][]int, b *Basin, p *Coord) *Basin {
 }
 
 // Bruteforce mapping of the cave; a point is a local
-// minima if all its adjacent neighbours (up, down, right, left)
+// minima if all its adjacent setNeighbours (up, down, right, left)
 // are higher than it is.
 func mapCave(inputFile string) ([][]int, []*Coord, int) {
 	ws := util.LineScanner(inputFile)

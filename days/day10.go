@@ -59,6 +59,7 @@ var delimiters = map[rune]*Delim {
 	'}': {false, '{', 1197},
 	'>': {false, '<', 25137},
 }
+
 // Returns the remaining stack, and the error score
 func checkSyntax(runes []rune) (*Stack, int) {
 	stack := Stack{nil }

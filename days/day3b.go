@@ -34,7 +34,7 @@ type Node struct {
   right   *Node
 }
 
-// Create a tree. Whenever we add a binary number to the tree,
+// Create a tree. Whenever we addCave a binary number to the tree,
 // traverse one edge to the left if the next digit is 0, otherwise
 // one edge to the right. Update the weight of each node you traverse.
 //
