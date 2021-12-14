@@ -19,14 +19,10 @@ func Day14(inputFile string, part int) {
 func makePolymer(ls *bufio.Scanner, steps int) {
 	line, ok := util.Read(ls)
 	// Create polymer
-	count := make(map[rune]int)
 	template := []rune(line)
-	for _, r := range template {
-		count[r]++
-	}
-	p := Polymer{steps, template, count, make(map[rune]map[rune]rune), make(map[rune]map[rune][]Counter)}
+	p := Polymer{steps,  make(map[rune]map[rune]rune), make(map[rune]map[rune][]map[rune]int)}
 
-	// Record rules
+	// Capture rules
 	var (
 		left	[]rune
 		right 	[]rune
@@ -46,10 +42,18 @@ func makePolymer(ls *bufio.Scanner, steps int) {
 		line, ok = util.Read(ls)
 	}
 
-	// Expand
-	counter := p.expand()
+	// Expand string
+	c := make(map[rune]int)
+	for i, j := 0, 1; j < len(template); i,j = i+1, j+1 {
+		c = add(c, p.count(template[i], template[j], p.steps))
+		if j < len(template) -1 {
+			// remove duplicate count
+			c = add(c, map[rune]int{template[j]: -1})
+		}
+	}
+
 	min, max := int(^uint(0) >> 1), -1
-	for _, v := range counter.counts {
+	for _, v := range c {
 		if v > max {
 			max = v
 		}
@@ -61,70 +65,51 @@ func makePolymer(ls *bufio.Scanner, steps int) {
 	fmt.Println("Most common - least common: ", max - min)
 }
 
-type Counter struct {
-	counts	 	map[rune]int
-}
-
-func (c Counter) add(d Counter) Counter {
-	m := make(map[rune]int)
-
-	for k, v := range c.counts {
-		m[k] += v
-	}
-
-	for k, v := range d.counts {
-		m[k] += v
-	}
-
-	return Counter{m}
-}
-
 type Polymer struct {
 	steps     int
-	template  []rune
-	counts    map[rune]int
 	rules     map[rune]map[rune]rune
-	expansion map[rune]map[rune][]Counter // expansion[x][y][3][z] = the number of z's added from XY after 3 steps
+	expansion map[rune]map[rune][]map[rune]int // expansion[x][y][3][z] = the number of z's added from XY after 3 steps
 }
 
-func (p *Polymer) expand() Counter {
-	c := Counter{make(map[rune]int)}
-	for i, j := 0, 1; j < len(p.template); i,j = i+1, j+1 {
-		c = c.add(p.count(p.template[i], p.template[j], p.steps))
-
-		if j < len(p.template) -1 {
-			// remove duplicate count
-			c = c.add(Counter{map[rune]int{p.template[j]: -1}})
-		}
-	}
-
-	return c
-}
-
-func (p *Polymer) count(a rune, b rune, step int) Counter {
+func (p *Polymer) count(a rune, b rune, step int) map[rune]int {
 	// With xy -> z we get
 	// expansion[x][y][3] = expansion[x][z][2]+expansion[z][y][2]
 	c := p.rules[a][b]
 	if step == 1 {
-		cc := Counter{make(map[rune]int)}
-		cc.counts[a]++
-		cc.counts[b]++
-		cc.counts[c]++
+		cc := make(map[rune]int)
+		cc[a]++
+		cc[b]++
+		cc[c]++
 		return cc
 	}
 
 	// if XY expansion was never counted, create the counters
 	if p.expansion[a] == nil {
-		p.expansion[a] = make(map[rune][]Counter)
+		p.expansion[a] = make(map[rune][]map[rune]int)
 	}
 	if p.expansion[a][b] == nil {
-		p.expansion[a][b] = make([]Counter, p.steps+1)
+		p.expansion[a][b] = make([]map[rune]int, p.steps+1)
 	}
 
 	// if XY expansion is not recorded at step 'step', count it now
-	if p.expansion[a][b][step].counts == nil {
-		p.expansion[a][b][step] = p.count(a, c, step-1).add(p.count(c, b, step-1).add(Counter{map[rune]int{c: -1}}))
+	if p.expansion[a][b][step] == nil {
+		p.expansion[a][b][step] = add(p.count(a, c, step-1), p.count(c, b, step-1))
+		p.expansion[a][b][step] = add(p.expansion[a][b][step], map[rune]int{c: -1})
 	}
 
 	return p.expansion[a][b][step]
+}
+
+func add(c map[rune]int, d map[rune]int) map[rune]int {
+	m := make(map[rune]int)
+
+	for k, v := range c {
+		m[k] += v
+	}
+
+	for k, v := range d {
+		m[k] += v
+	}
+
+	return m
 }
