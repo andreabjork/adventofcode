@@ -85,7 +85,7 @@ func checkSyntax(runes []rune) (*Stack, int) {
 // Calculates the completion score from the remaining stack
 func completionScore(s *Stack) int {
 	total := 0
-	// Pop the rest of the stack and count the matrix
+	// Pop the rest of the stack and counts the matrix
 	for p, ok := (*s).pop(); ok; {
 		total = 5*total + (*p).score
 		p, ok = (*s).pop()

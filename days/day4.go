@@ -75,10 +75,10 @@ func markBingoSheets(bingoNumbers []string, bingoLookUp map[int][]BingoPosition,
 		num := util.ToInt(number)
 		for _, pos := range bingoLookUp[num] {
 			if marks[pos.onSheet].bingoNotFound {
-				// Update row count
+				// Update row counts
 				marks[pos.onSheet].xInRow[pos.inRow]++
 
-				// Update col count
+				// Update col counts
 				marks[pos.onSheet].xInCol[pos.inCol]++
 
 				// Update sum of unmarked
