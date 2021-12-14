@@ -12,21 +12,19 @@ func Day14(inputFile string, part int) {
 	if part == 0 {
 		makePolymer(ls, 10)
 	} else {
-		makePolymer(ls, 30)
+		makePolymer(ls, 40)
 	}
 }
 
 func makePolymer(ls *bufio.Scanner, steps int) {
-	STEPS := steps+1
 	line, ok := util.Read(ls)
 	// Create polymer
-	templates := make([][]rune, STEPS)
 	count := make(map[rune]int)
-	templates[0] = []rune(line)
-	for _, r := range templates[0] {
+	template := []rune(line)
+	for _, r := range template {
 		count[r]++
 	}
-	p := Polymer{templates, count, make(map[rune]map[rune]rune)}
+	p := Polymer{steps, template, count, make(map[rune]map[rune]rune)}
 
 	// Record rules
 	var (
@@ -65,40 +63,26 @@ func makePolymer(ls *bufio.Scanner, steps int) {
 }
 
 type Polymer struct {
-	templates 	[][]rune
+	steps 		int
+	template	[]rune
 	count		map[rune]int
 	rules	 	map[rune]map[rune]rune
 }
 
-func (p *Polymer) print(step int) {
-	fmt.Println(string(p.templates[step]))
-}
-
 func (p *Polymer) expand() {
-	for i, j := 0, 1; j < len(p.templates[0]); i,j = i+1, j+1 {
-		p.insert(p.templates[0][i], p.templates[0][j], 0)
+	for i, j := 0, 1; j < len(p.template); i,j = i+1, j+1 {
+		p.insert(p.template[i], p.template[j], 0)
 	}
 }
 
 func (p *Polymer) insert(a rune, b rune, steps int) {
-	if steps == len(p.templates)-1 {
+	if steps == p.steps {
 		return
 	}
 
 	steps++
 	c := p.rules[a][b]
-
 	p.count[c]++
-	//p.track(a, b, c, steps)
 	p.insert(a, c, steps)
 	p.insert(c, b, steps)
-}
-
-func (p *Polymer) track(a rune, b rune, c rune, steps int) {
-	p.count[c]++
-	if len(p.templates[steps]) == 0 {
-		p.templates[steps] = append(p.templates[steps], a, c, b)
-	} else {
-		p.templates[steps] = append(p.templates[steps][:len(p.templates[steps])-1], a, c, b)
-	}
 }
