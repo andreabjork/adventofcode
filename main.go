@@ -22,6 +22,7 @@ var dayfuncs = map[int]interface{}{
     11: days.Day11,
     12: days.Day12,
     13: days.Day13,
+    14: days.Day14,
 }
 
 func main() {
