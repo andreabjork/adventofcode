@@ -11,21 +11,27 @@ func Day16(inputFile string, part int) {
 	rs := util.RuneScanner(inputFile)
 	s := &Stream{rs, "", make([]uint64, 0), 0, 0}
 	p := decodeBITS(s)
-	fmt.Println("Accumulate version sum: ", p.cumsum)
+
+	if part == 0 {
+		fmt.Println("Accumulate version sum: ", p.cumsum)
+	} else {
+		fmt.Printf("Result: %d\n", p.value)
+	}
 }
 
 func decodeBITS(s *Stream) Packet {
 	s.curr = 0
 	version := s.feed(3, false)
 	typeID := s.feed(3, false)
-	p := Packet{version, typeID, -1, -1, -1, -1, version, make([]Packet, 0)}
-	if p.typeID == 4 {
+	p := Packet{version, TypeID(typeID), -1, -1, -1, version, 0, make([]Packet, 0)}
+
+	if p.typeID == Literal {
 		for s.feed(1, false) == 1 {
 			s.feed(4, true)
 		}
 		s.feed(4, true)
 		p.bits = s.curr
-		p.literal = s.accept()
+		p.value = s.accept()
 	} else {
 		p.ltypeID = s.feed(1, false) // 1 for 15-bit and stream length, 2 for 11-bit packet-number
 		if p.ltypeID == 0 {
@@ -37,6 +43,7 @@ func decodeBITS(s *Stream) Packet {
 				p.cumsum += subpacket.cumsum
 				p.subpackets = append(p.subpackets, subpacket)
 			}
+			p.apply()
 		} else if p.ltypeID == 1 {
 			p.max = s.feed(11, false)
 			p.bits = s.curr
@@ -46,6 +53,7 @@ func decodeBITS(s *Stream) Packet {
 				p.bits += subpacket.bits
 				p.subpackets = append(p.subpackets, subpacket)
 			}
+			p.apply()
 		}
 	}
 
@@ -55,30 +63,72 @@ func decodeBITS(s *Stream) Packet {
 // ======
 // PACKET
 // ======
+type TypeID int64
+const (
+	Sum TypeID = iota
+    Product
+    Min
+	Max
+	Literal
+	Gneq
+	Lneq
+	Eq
+)
+
 type Packet struct {
 	version    	int
-	typeID     	int
-	literal    	int // contains literal packet value if typeID == 4
+	typeID     	TypeID
 	ltypeID    	int // 0: length is a 15-bit number of bits, 1: length is a 11-bit number of packets
 	max        	int // the max length, either of bits or of subpackets
 	bits 		int // bits used to represent this packet (including subpackets)
 	cumsum 		int // accumulative version sum of packet + subpackets
+	value 		int // value of packet, according to operand rules
 	subpackets []Packet
 }
 
-func (p *Packet) print(tab string, vsum *int) {
-	fmt.Printf("%s* Version: %d | Type: %d ", tab, p.version, p.typeID)
-	if p.typeID == 4 {
-		fmt.Printf("| Literal: %d\n", p.literal)
-		return
-	} else if p.ltypeID == 0 {
-		fmt.Printf("| Operator | Bit-length %d\n", p.max)
-	} else if p.ltypeID == 1 {
-		fmt.Printf("| Operator | Packet-length %d\n", p.max)
+const MAX_INT = int(^uint(0) >> 1)
+func (p *Packet) apply() {
+	switch p.typeID {
+	case Sum:
+		p.value = 0
+		for _, sp := range p.subpackets {
+			p.value += sp.value
+		}
+	case Product:
+		p.value = 1
+		for _, sp := range p.subpackets {
+			p.value *= sp.value
+		}
+	case Min:
+		p.value = MAX_INT
+		for _, sp := range p.subpackets {
+			if sp.value < p.value {
+				p.value = sp.value
+			}
+		}
+	case Max:
+		p.value = -1
+		for _, sp := range p.subpackets {
+			if sp.value > p.value {
+				p.value = sp.value
+			}
+		}
+	case Gneq:
+		p.value = 0
+		if  p.subpackets[0].value > p.subpackets[1].value {
+			p.value = 1
+		}
+	case Lneq:
+		p.value = 0
+		if  p.subpackets[0].value < p.subpackets[1].value {
+			p.value = 1
+		}
+	case Eq:
+		p.value = 0
+		if  p.subpackets[0].value == p.subpackets[1].value {
+			p.value = 1
+		}
 	}
-
-	fmt.Printf("%s  Subpackets: \n", tab)
-	tab += "\t"
 }
 
 // ============
