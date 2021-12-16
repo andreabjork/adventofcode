@@ -24,20 +24,30 @@ func decodeBITS(s *Stream) Packet {
 	typeID := s.feed(3, false)
 	p := Packet{version, TypeID(typeID), -1, -1, -1, version, 0, make([]Packet, 0)}
 	if p.typeID == Literal {
-		p.feedLiteral(s)
-	} else {
-		p.feedLengthType(s)
-		if p.ltypeID == BITCOUNT {
-			for p.bits-22 < p.max {
-				p.feedSubpacket(s)
-			}
-			p.applyOperand()
-		} else if p.ltypeID == PACKETCOUNT {
-			for i := 0; i < p.max; i++ {
-				p.feedSubpacket(s)
-			}
-			p.applyOperand()
+		for s.feed(1, false) == 1 {
+			s.feed(4, true)
 		}
+		s.feed(4, true)
+		p.bits = s.curr
+		p.value = s.accept()
+	} else {
+		p.ltypeID = LTypeID(s.feed(1, false))
+		p.max = s.feed(p.ltypeID.getBits(), false)
+		p.bits = s.curr
+		keepGoing := true
+		for keepGoing {
+			subpacket := decodeBITS(s)
+			p.bits += subpacket.bits
+			p.cumsum += subpacket.cumsum
+			p.subpackets = append(p.subpackets, subpacket)
+
+			if p.ltypeID == BITCOUNT {
+				keepGoing = p.bits-22 < p.max
+			} else if p.ltypeID == PACKETCOUNT {
+				keepGoing = len(p.subpackets) < p.max
+			}
+		}
+		p.applyOperand()
 	}
 	return p
 }
@@ -64,6 +74,16 @@ const (
 	PACKETCOUNT
 )
 
+func (lt LTypeID) getBits() int {
+	switch lt {
+	case BITCOUNT:
+		return 15
+	case PACKETCOUNT:
+		return 11
+	}
+	return 0
+}
+
 type Packet struct {
 	version    	int
 	typeID     	TypeID
@@ -73,34 +93,6 @@ type Packet struct {
 	cumsum 		int // accumulative version sum of packet + subpackets
 	value 		int // value of packet, according to operand rules
 	subpackets []Packet
-}
-
-func (p *Packet) feedSubpacket(s *Stream) {
-	subpacket := decodeBITS(s)
-	p.bits += subpacket.bits
-	p.cumsum += subpacket.cumsum
-	p.subpackets = append(p.subpackets, subpacket)
-}
-
-func (p *Packet) feedLiteral(s *Stream) {
-	for s.feed(1, false) == 1 {
-		s.feed(4, true)
-	}
-	s.feed(4, true)
-	p.bits = s.curr
-	p.value = s.accept()
-}
-
-func (p *Packet) feedLengthType(s *Stream) {
-	p.ltypeID = LTypeID(s.feed(1, false))
-
-	if p.ltypeID == BITCOUNT {
-		p.max = s.feed(15, false)
-	} else {
-		p.max = s.feed(11, false)
-	}
-
-	p.bits = s.curr
 }
 
 const MAX_INT = int(^uint(0) >> 1)
