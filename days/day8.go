@@ -68,7 +68,7 @@ func decode(outcome []string, digits map[string]*Digit) string {
 		if digit, found := digits[id]; found {
 			s += strconv.Itoa((*digit).num)
 		} else {
-			fmt.Printf("HELP!!!! code %s had id %s which matches no digit\n", code, id)
+			fmt.Printf("HELP!!!! code %s had typeID %s which matches no digit\n", code, id)
 		}
 	}
 
@@ -113,7 +113,7 @@ func learnCodes(words []string) map[string]*Digit {
 	}
 
 	unknownDigits := make([]*UnknownDigit, 0)
-	// Finds 1, 4, 7, 8, because id = len(word) is in the map
+	// Finds 1, 4, 7, 8, because typeID = len(word) is in the map
 	for _, word := range words {
 		id := strconv.Itoa(len(word))
 
@@ -136,7 +136,7 @@ func learnCodes(words []string) map[string]*Digit {
 // ============
 // HELPER FUNCS
 // ============
-// Tries X, XY, and XYZ until a unique id in the map is found
+// Tries X, XY, and XYZ until a unique typeID in the map is found
 // where X = length of code, Y = gcd(code, 4), Z = gcd(code, 7)
 func validId(idmap map[string]*Digit, code string) string {
 	id := strconv.Itoa(len(code))
