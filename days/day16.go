@@ -11,7 +11,6 @@ func Day16(inputFile string, part int) {
 	rs := util.RuneScanner(inputFile)
 	s := &Stream{rs, "", make([]uint64, 0), 0, 0}
 	p := decodeBITS(s)
-
 	if part == 0 {
 		fmt.Println("Accumulate version sum: ", p.cumsum)
 	} else {
@@ -24,41 +23,25 @@ func decodeBITS(s *Stream) Packet {
 	version := s.feed(3, false)
 	typeID := s.feed(3, false)
 	p := Packet{version, TypeID(typeID), -1, -1, -1, version, 0, make([]Packet, 0)}
-
 	if p.typeID == Literal {
-		for s.feed(1, false) == 1 {
-			s.feed(4, true)
-		}
-		s.feed(4, true)
-		p.bits = s.curr
-		p.value = s.accept()
+		p.feedLiteral(s)
 	} else {
-		p.ltypeID = s.feed(1, false) // 1 for 15-bit and stream length, 2 for 11-bit packet-number
-		if p.ltypeID == 0 {
-			p.max = s.feed(15, false)
-			p.bits = s.curr
+		p.feedLengthType(s)
+		if p.ltypeID == BITCOUNT {
 			for p.bits-22 < p.max {
-				subpacket := decodeBITS(s)
-				p.bits += subpacket.bits
-				p.cumsum += subpacket.cumsum
-				p.subpackets = append(p.subpackets, subpacket)
+				p.feedSubpacket(s)
 			}
-			p.apply()
-		} else if p.ltypeID == 1 {
-			p.max = s.feed(11, false)
-			p.bits = s.curr
+			p.applyOperand()
+		} else if p.ltypeID == PACKETCOUNT {
 			for i := 0; i < p.max; i++ {
-				subpacket := decodeBITS(s)
-				p.cumsum += subpacket.cumsum
-				p.bits += subpacket.bits
-				p.subpackets = append(p.subpackets, subpacket)
+				p.feedSubpacket(s)
 			}
-			p.apply()
+			p.applyOperand()
 		}
 	}
-
 	return p
 }
+
 
 // ======
 // PACKET
@@ -75,10 +58,16 @@ const (
 	Eq
 )
 
+type LTypeID int64
+const (
+	BITCOUNT LTypeID = iota
+	PACKETCOUNT
+)
+
 type Packet struct {
 	version    	int
 	typeID     	TypeID
-	ltypeID    	int // 0: length is a 15-bit number of bits, 1: length is a 11-bit number of packets
+	ltypeID    	LTypeID
 	max        	int // the max length, either of bits or of subpackets
 	bits 		int // bits used to represent this packet (including subpackets)
 	cumsum 		int // accumulative version sum of packet + subpackets
@@ -86,8 +75,36 @@ type Packet struct {
 	subpackets []Packet
 }
 
+func (p *Packet) feedSubpacket(s *Stream) {
+	subpacket := decodeBITS(s)
+	p.bits += subpacket.bits
+	p.cumsum += subpacket.cumsum
+	p.subpackets = append(p.subpackets, subpacket)
+}
+
+func (p *Packet) feedLiteral(s *Stream) {
+	for s.feed(1, false) == 1 {
+		s.feed(4, true)
+	}
+	s.feed(4, true)
+	p.bits = s.curr
+	p.value = s.accept()
+}
+
+func (p *Packet) feedLengthType(s *Stream) {
+	p.ltypeID = LTypeID(s.feed(1, false))
+
+	if p.ltypeID == BITCOUNT {
+		p.max = s.feed(15, false)
+	} else {
+		p.max = s.feed(11, false)
+	}
+
+	p.bits = s.curr
+}
+
 const MAX_INT = int(^uint(0) >> 1)
-func (p *Packet) apply() {
+func (p *Packet) applyOperand() {
 	switch p.typeID {
 	case Sum:
 		p.value = 0
