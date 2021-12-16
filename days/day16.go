@@ -56,15 +56,13 @@ func decodeBITS(s *Stream) Packet {
 // PACKET
 // ======
 type Packet struct {
-	version    int
-	typeID     int
-	// for literal packet values
-	literal    int
-	// for operator packet values
-	ltypeID    int // 0: length is a 15-bit number of bits, 1: length is a 11-bit number of packets
-	max        int
+	version    	int
+	typeID     	int
+	literal    	int // contains literal packet value if typeID == 4
+	ltypeID    	int // 0: length is a 15-bit number of bits, 1: length is a 11-bit number of packets
+	max        	int // the max length, either of bits or of subpackets
 	bits 		int // bits used to represent this packet (including subpackets)
-	cumsum 		int
+	cumsum 		int // accumulative version sum of packet + subpackets
 	subpackets []Packet
 }
 
