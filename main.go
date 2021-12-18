@@ -26,6 +26,7 @@ var dayfuncs = map[int]interface{}{
     15: days.Day15,
     16: days.Day16,
     17: days.Day17,
+    18: days.Day18,
 }
 
 func main() {
@@ -41,7 +42,7 @@ func main() {
         real_input string
     )
     if os.Args[1] == "all" {
-        for d := 1; d <= 15; d++ {
+        for d := 1; d <= 18; d++ {
             test_input = fmt.Sprintf("inputs/day%d_test.txt", d)
             real_input = fmt.Sprintf("inputs/day%d.txt", d)
             runDay(d, 0, test_input)

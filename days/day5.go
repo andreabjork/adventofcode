@@ -40,7 +40,7 @@ func day5(inputFile string, traverseAll bool) {
 	for hasNext {
 		a, b = toEndpoints(read) // promises a.x <= b.x
 		c = Point{x: -1, y: -1}
-		// traverse each segment, or horizontal+vertical segments only
+		// reduceOne each segment, or horizontal+vertical segments only
 		if traverseAll || a.x == b.x || a.y == b.y {
 			reachedEnd := false
 			for !reachedEnd {
