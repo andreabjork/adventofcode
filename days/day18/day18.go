@@ -1,4 +1,4 @@
-package days
+package day18
 
 import (
 	"adventofcode/m/v2/util"
@@ -8,73 +8,194 @@ import (
 
 func Day18(inputFile string, part int) {
 	if part == 0 {
-		Fishmath(inputFile)
+		res, mag := FishmathA(inputFile)
+		fmt.Println(res)
+		fmt.Printf("Magnitude: %d\n", mag)
 	} else {
-		fmt.Printf("bla")
+		res, mag := FishmathB(inputFile)
+		fmt.Println(res)
+		fmt.Printf("Magnitude: %d\n", mag)
 	}
 }
 
-func Fishmath(inputFile string) (string, int) {
+func FishmathB(inputFile string) (string, int) {
 	ls := util.LineScanner(inputFile)
-
-	line, ok := util.Read(ls)
-	var str string
-	var root, n, m *Noda
-	n = parseTree(line)
-	root = n
-	str = print(n)
-	fmt.Println(str)
-	line, ok = util.Read(ls)
-	for ok {
-		m = parseTree(line)
-		strm := print(m)
-		fmt.Printf("adding %s to %s\n", strm, str)
-		n = n.add(m)
-
-		str = print(n)
-		fmt.Println("After add:")
-		fmt.Println(str)
-
-		n.reduce()
-
-		str = print(n)
-		fmt.Println("After reduce:")
-		fmt.Println(str)
-
+	inputs := make([]string, 0)
+	for line, ok := util.Read(ls); ok; {
+		inputs = append(inputs, line)
 		line, ok = util.Read(ls)
 	}
 
-	return str, root.magnitude
+	var maxN *Noda
+	maxMag := 0
+	for _, ele := range inputs {
+		for _, toAdd := range inputs {
+			n := parseTree(ele)
+			m := parseTree(toAdd)
+			n = n.add(m)
+			n.reduce()
+			if mag := n.magnit(); mag > maxMag {
+				maxMag = mag
+				maxN = n
+			}
+		}	
+	}
+	return maxN.print(), maxMag 
 }
 
+func FishmathA(inputFile string) (string, int) {
+	ls := util.LineScanner(inputFile)
+
+	line, ok := util.Read(ls)
+	var n, m *Noda
+	n = parseTree(line)
+	n.reduce()
+	line, ok = util.Read(ls)
+	for ok {
+		m = parseTree(line)
+		n = n.add(m)
+		n.reduce()
+		line, ok = util.Read(ls)
+	}
+
+	return n.print(), n.magnit()
+}
+
+// =============
+// DFS & METHODS
+// -------------
+// start
+// step
+// explodeIfAble
+// splitIfAble
+type DFS struct {
+	marked map[*Noda]bool
+	root   *Noda
+	n      *Noda
+	depth  int
+	str    string
+}
+
+func (dfs *DFS) restart() {
+	dfs.marked = make(map[*Noda]bool)
+	dfs.n = dfs.root
+	dfs.depth = 0
+	dfs.str = ""
+}
+
+func (dfs *DFS) step() bool {
+	if dfs.n.left != nil && !dfs.marked[dfs.n.left] {
+		dfs.marked[dfs.n] = true
+		dfs.n = dfs.n.left
+		dfs.depth++
+	} else if dfs.n.right != nil && !dfs.marked[dfs.n.right] {
+		dfs.marked[dfs.n] = true
+		dfs.n = dfs.n.right
+		dfs.depth++
+	} else if !dfs.marked[dfs.n] {
+		dfs.str += fmt.Sprintf("%d", dfs.n.magnitude)
+		dfs.marked[dfs.n] = true
+	} else {
+		if dfs.n.parent == nil {
+			return false
+		}
+		if dfs.n == dfs.n.parent.right {
+			dfs.str += "]"
+		} else {
+			dfs.str += ","
+		}
+		dfs.n = dfs.n.parent
+		dfs.depth--
+	}
+
+	return true
+}
+
+func (dfs *DFS) explodes() bool {
+	if dfs.depth >= 5 {
+		dfs.n.parent.explode()
+		return true
+	}
+	return false
+}
+
+func (dfs *DFS) splits() bool {
+	if dfs.n.magnitude >= 10 && dfs.n.isLeaf() {
+		var l, r int
+		if dfs.n.magnitude%2 == 0 {
+			l, r = dfs.n.magnitude/2, dfs.n.magnitude/2
+		} else {
+			l, r = dfs.n.magnitude/2, dfs.n.magnitude/2+1
+		}
+		dfs.n.magnitude = l + r
+		dfs.n.left = &Noda{l, dfs.n, nil, nil}
+		dfs.n.right = &Noda{r, dfs.n, nil, nil}
+		return true
+	}
+	return false
+}
+
+// ===============
+// NODA & METHODS
+// ---------------
+// - add
+// - reduce
+// - split
+// - explode
+// - firstRight
+// - firstLeft
+// - isLeft
+// - isRight
+// - isLeaf
+// - magnit
+// - print
+// ===============
 type Noda struct {
-	magnitude 	int
-	parent    	*Noda
-	left      	*Noda
-	right     	*Noda
+	magnitude int
+	parent    *Noda
+	left      *Noda
+	right     *Noda
+}
+
+func (n *Noda) reduce() {
+	root := n
+	dfs := &DFS{make(map[*Noda]bool), root, n, 0, ""}
+	ok := true
+	reductions := 1
+	for reductions > 0 {
+		reductions = 0
+		ok = true
+		for ok {
+			ok = dfs.step()
+			if dfs.explodes() {
+				dfs.restart()
+				ok = true
+			}
+
+		}
+		dfs.restart()
+		ok = true
+		for ok {
+			ok = dfs.step()
+			if dfs.splits() {
+				ok = false
+				dfs.restart()
+				reductions++
+			}
+		}
+	}
 }
 
 func (n *Noda) firstRight() (*Noda, bool) {
 	m := n
-	if m.isLeft() {
-		fmt.Println("it's a left node")
-		m = m.parent.right
-	} else if m.isRight() {
-		fmt.Println("its a right node")
-		m = m.parent.parent
-		for m.parent != nil && m.isRight() {
-			m = m.parent
-		}
-
+	for m.isRight() {
+		m = m.parent
 		if m.parent == nil {
-			// reached root
-			fmt.Println("No right node!")
 			return nil, false
 		}
-		m = m.right
 	}
+	m = m.parent.right
 
-	fmt.Println("Starting at ", m)
 	for !m.isLeaf() {
 		m = m.left
 	}
@@ -83,25 +204,14 @@ func (n *Noda) firstRight() (*Noda, bool) {
 
 func (n *Noda) firstLeft() (*Noda, bool) {
 	m := n
-	if m.isRight() {
-		fmt.Println("it's a right node")
-		m = m.parent.left
-	} else if m.isLeft() {
-		fmt.Println("its a left node")
-		m = m.parent.parent
-		for m.parent != nil && m.isLeft() {
-			m = m.parent
-		}
+	for m.isLeft() {
+		m = m.parent
 		if m.parent == nil {
-			// reached root
-			fmt.Println("No left node!")
 			return nil, false
 		}
-		m = m.left
 	}
+	m = m.parent.left
 
-
-	fmt.Println("Starting at ", m)
 	for !m.isLeaf() {
 		m = m.right
 	}
@@ -109,108 +219,47 @@ func (n *Noda) firstLeft() (*Noda, bool) {
 }
 
 func (n *Noda) explode() {
-	fmt.Printf("Exploding %d %d\n", n.left.magnitude, n.right.magnitude)
 	addLeft := n.left.magnitude
 	addRight := n.right.magnitude
-
-
-	fmt.Println("finding first left")
 	if l, found := n.firstLeft(); found {
-		fmt.Printf("Adding %d to %d\n", addLeft, l.magnitude)
 		l.magnitude += addLeft
 	}
 
-	fmt.Println("finding first right")
 	if r, found := n.firstRight(); found {
-		fmt.Printf("Adding %d to %d\n", addRight, r.magnitude)
 		r.magnitude += addRight
 	}
 	n.magnitude = 0
 	n.left = nil
 	n.right = nil
-
-}
-
-func (n *Noda) split() {
-	var l, r int
-	if n.magnitude % 2 == 0 {
-		l, r = n.magnitude/2, n.magnitude/2
-	} else {
-		l, r = n.magnitude/2, n.magnitude/2+1
-	}
-	n.magnitude = l+r
-	n.left = &Noda{l, n, nil, nil}
-	n.right = &Noda{r, n, nil, nil}
 }
 
 func (n *Noda) add(m *Noda) *Noda {
-	newRoot := &Noda{3*n.magnitude + 2*n.magnitude, nil, n, m}
+	newRoot := &Noda{-1, nil, n, m}
 	n.parent = newRoot
 	m.parent = newRoot
 	return newRoot
 }
+
 func (n *Noda) isLeft() bool {
 	return n.parent.left == n
 }
+
 func (n *Noda) isRight() bool {
 	return n.parent.right == n
 }
+
 func (n *Noda) isLeaf() bool {
 	return n.right == nil && n.left == nil
 }
 
-// ----------------
-func (n *Noda) reduce() {
-	marked := make(map[*Noda]bool)
-	root := n
-	depth := 0
-	str := ""
-	for true {
-		if n.left != nil && !marked[n.left] {
-			marked[n] = true
-			n = n.left
-			depth++
-		} else if n.right != nil && !marked[n.right] {
-			marked[n] = true
-			n = n.right
-			depth++
-		} else if !marked[n] {
-			str += fmt.Sprintf("%d", n.magnitude )
-			marked[n] = true
-		} else {
-			if n.parent == nil {
-				break
-			}
-			if n == n.parent.right {
-				str += "]"
-			} else {
-				str += ","
-			}
-			n = n.parent
-			depth--
-		}
-
-		if depth >= 5 {
-			n.parent.explode()
-			fmt.Println("After explode: ")
-			str := print(root)
-			fmt.Println(str)
-			n = root
-			marked = make(map[*Noda]bool)
-			depth = 0
-		} else if n.magnitude >= 10 && n.isLeaf() {
-			n.split()
-			fmt.Println("After split: ")
-			str := print(root)
-			fmt.Println(str)
-			n = root
-			marked = make(map[*Noda]bool)
-			depth = 0
-		}
+func (n *Noda) magnit() int {
+	if n.isLeaf() {
+		return n.magnitude
 	}
+	return 3*n.left.magnit() + 2*n.right.magnit()
 }
 
-func print(n *Noda) string {
+func (n *Noda) print() string {
 	marked := make(map[*Noda]bool)
 	str := ""
 	for true {
@@ -222,7 +271,7 @@ func print(n *Noda) string {
 			marked[n] = true
 			n = n.right
 		} else if !marked[n] {
-			str += fmt.Sprintf("%d", n.magnitude )
+			str += fmt.Sprintf("%d", n.magnitude)
 			marked[n] = true
 		} else {
 			if n.parent == nil {
@@ -239,14 +288,17 @@ func print(n *Noda) string {
 	return str
 }
 
+// ============
+// PARSE INPUTS
+// ============
 func parseTree(line string) *Noda {
-	root := &Noda{0, nil, nil, nil}
+	root := &Noda{-1, nil, nil, nil}
 	n := root
 	symbols := []rune(line)
 	for _, sym := range symbols {
 		if sym == '[' {
-			n.left = &Noda{0, n, nil, nil}
-			n.right = &Noda{0, n, nil, nil}
+			n.left = &Noda{-1, n, nil, nil}
+			n.right = &Noda{-1, n, nil, nil}
 			n = n.left
 		} else if sym == ']' {
 			n = n.parent
@@ -257,6 +309,6 @@ func parseTree(line string) *Noda {
 			n.magnitude = v
 		}
 	}
-	
+
 	return root
 }
