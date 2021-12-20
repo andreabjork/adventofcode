@@ -18,6 +18,24 @@ func Day18(inputFile string, part int) {
 	}
 }
 
+func FishmathA(inputFile string) (string, int) {
+	ls := util.LineScanner(inputFile)
+
+	line, ok := util.Read(ls)
+	var n, m *Noda
+	n = parseTree(line)
+	n.reduce()
+	line, ok = util.Read(ls)
+	for ok {
+		m = parseTree(line)
+		n = n.add(m)
+		n.reduce()
+		line, ok = util.Read(ls)
+	}
+
+	return n.print(), n.magnit()
+}
+
 func FishmathB(inputFile string) (string, int) {
 	ls := util.LineScanner(inputFile)
 	inputs := make([]string, 0)
@@ -43,31 +61,13 @@ func FishmathB(inputFile string) (string, int) {
 	return maxN.print(), maxMag 
 }
 
-func FishmathA(inputFile string) (string, int) {
-	ls := util.LineScanner(inputFile)
-
-	line, ok := util.Read(ls)
-	var n, m *Noda
-	n = parseTree(line)
-	n.reduce()
-	line, ok = util.Read(ls)
-	for ok {
-		m = parseTree(line)
-		n = n.add(m)
-		n.reduce()
-		line, ok = util.Read(ls)
-	}
-
-	return n.print(), n.magnit()
-}
-
 // =============
 // DFS & METHODS
 // -------------
-// start
+// restart
 // step
-// explodeIfAble
-// splitIfAble
+// explodes (if able)
+// splits (if able)
 type DFS struct {
 	marked map[*Noda]bool
 	root   *Noda
@@ -93,16 +93,10 @@ func (dfs *DFS) step() bool {
 		dfs.n = dfs.n.right
 		dfs.depth++
 	} else if !dfs.marked[dfs.n] {
-		dfs.str += fmt.Sprintf("%d", dfs.n.magnitude)
 		dfs.marked[dfs.n] = true
 	} else {
 		if dfs.n.parent == nil {
 			return false
-		}
-		if dfs.n == dfs.n.parent.right {
-			dfs.str += "]"
-		} else {
-			dfs.str += ","
 		}
 		dfs.n = dfs.n.parent
 		dfs.depth--
