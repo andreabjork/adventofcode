@@ -3,6 +3,8 @@ package main
 import (
 	"adventofcode/m/v2/days"
 	"adventofcode/m/v2/days/day18"
+	"adventofcode/m/v2/days/day19"
+	"adventofcode/m/v2/days/day21"
 	"adventofcode/m/v2/util"
 	"fmt"
 	"os"
@@ -28,6 +30,8 @@ var dayfuncs = map[int]interface{}{
 	16: days.Day16,
 	17: days.Day17,
 	18: day18.Day18,
+	19: day19.Day19,
+	21: day21.Day21,
 }
 
 func main() {
