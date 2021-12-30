@@ -1,7 +1,23 @@
 package main
 
 import (
-	"adventofcode/m/v2/days"
+	"adventofcode/m/v2/days/day1"
+	"adventofcode/m/v2/days/day2"
+	"adventofcode/m/v2/days/day3"
+	"adventofcode/m/v2/days/day4"
+	"adventofcode/m/v2/days/day5"
+	"adventofcode/m/v2/days/day6"
+	"adventofcode/m/v2/days/day7"
+	"adventofcode/m/v2/days/day8"
+	"adventofcode/m/v2/days/day9"
+	"adventofcode/m/v2/days/day10"
+	"adventofcode/m/v2/days/day11"
+	"adventofcode/m/v2/days/day12"
+	"adventofcode/m/v2/days/day13"
+	"adventofcode/m/v2/days/day14"
+	"adventofcode/m/v2/days/day15"
+	"adventofcode/m/v2/days/day16"
+	"adventofcode/m/v2/days/day17"
 	"adventofcode/m/v2/days/day18"
 	"adventofcode/m/v2/days/day19"
 	"adventofcode/m/v2/days/day21"
@@ -12,23 +28,23 @@ import (
 )
 
 var dayfuncs = map[int]interface{}{
-	1:  days.Day1,
-	2:  days.Day2,
-	3:  days.Day3,
-	4:  days.Day4,
-	5:  days.Day5,
-	6:  days.Day6,
-	7:  days.Day7,
-	8:  days.Day8,
-	9:  days.Day9,
-	10: days.Day10,
-	11: days.Day11,
-	12: days.Day12,
-	13: days.Day13,
-	14: days.Day14,
-	15: days.Day15,
-	16: days.Day16,
-	17: days.Day17,
+	1:  day1.Day1,
+	2:  day2.Day2,
+	3:  day3.Day3,
+	4:  day4.Day4,
+	5:  day5.Day5,
+	6:  day6.Day6,
+	7:  day7.Day7,
+	8:  day8.Day8,
+	9:  day9.Day9,
+	10: day10.Day10,
+	11: day11.Day11,
+	12: day12.Day12,
+	13: day13.Day13,
+	14: day14.Day14,
+	15: day15.Day15,
+	16: day16.Day16,
+	17: day17.Day17,
 	18: day18.Day18,
 	19: day19.Day19,
 	21: day21.Day21,
