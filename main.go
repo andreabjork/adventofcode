@@ -76,7 +76,7 @@ func main() {
 		day = util.ToInt(os.Args[1])
 		part = util.ToInt(os.Args[2])
 		if len(os.Args) > 3 {
-			test_input = os.Args[3] //fmt.Sprintf("inputs/day%d_test.txt", day)
+			test_input = fmt.Sprintf("inputs/day%d.txt", day)
 			runDay(day, part, test_input)
 		} else {
 			real_input = fmt.Sprintf("inputs/day%d.txt", day)
