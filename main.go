@@ -3,6 +3,7 @@ package main
 import (
 	"adventofcode/m/v2/days/day1"
 	"adventofcode/m/v2/days/day2"
+	"adventofcode/m/v2/days/day20"
 	"adventofcode/m/v2/days/day3"
 	"adventofcode/m/v2/days/day4"
 	"adventofcode/m/v2/days/day5"
@@ -47,6 +48,7 @@ var dayfuncs = map[int]interface{}{
 	17: day17.Day17,
 	18: day18.Day18,
 	19: day19.Day19,
+	20: day20.Day20,
 	21: day21.Day21,
 }
 
