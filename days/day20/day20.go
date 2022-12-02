@@ -6,14 +6,17 @@ import (
 )
 
 func Day20(inputFile string, part int) {
+	// Works for n = even, n = odd with parity 0 will lead to infinite
+	// lit pixels.
+	img, algo := MakeImage(inputFile)
 	if part == 0 {
-		fmt.Printf("Solution: %d\n", solve(inputFile))
+		fmt.Printf("Solution: %d\n", img.enhanceTimes(algo, 2))
 	} else {
-		fmt.Printf("Solution: %d\n", 0)
+		fmt.Printf("Solution: %d\n", img.enhanceTimes(algo, 50))
 	}
 }
 
-func solve(inputFile string) int {
+func MakeImage(inputFile string) (*Image, []bool) {
 	ls := util.LineScanner(inputFile)
 
 	// Process algorithm
@@ -44,15 +47,13 @@ func solve(inputFile string) int {
 		row++
 	}
 
-	img := &Image{pixels, col, row}
-
-	litPixels := img.enhanceTimes(algo, 2)
-	return litPixels
+	return &Image{pixels, 0, col, row}, algo
 }
 
 type Image struct {
 	// Coordinate system originating in top left
 	pixels 	map[int]map[int]bool
+	parity  int
 	width 	int
 	height	int
 }
@@ -74,43 +75,35 @@ func (img *Image) print() {
 func (img *Image) padding() *Image {
 	m, n := img.width, img.height
 	paddedPixels := make(map[int]map[int]bool, m+2)
+
 	for i := 0; i < m+2; i++ {
 		paddedPixels[i] = make(map[int]bool, n+2)
-		paddedPixels[0][i] = false
-		paddedPixels[i][0] = false
-	}
-
-	for i := 0; i < m; i++ {
-		paddedPixels[i+1] = make(map[int]bool, n+2)
-		for j := 0; j < n; j++ {
-			paddedPixels[i+1][j+1] = img.pixels[i][j]
+		for j := 0; j < n+2; j++ {
+			paddedPixels[i][j] = img.pixel(i-1,j-1) == 1
 		}
 	}
 
-	return &Image{paddedPixels, m+2, n+2}
+	return &Image{paddedPixels, img.parity, m+2, n+2}
 }
 
 func (img *Image) pixel(i int, j int) int {
 	if i >= 0 && i <= img.width && j >= 0 && j <= img.height {
-		if img.pixels[i][j] {
+		if val, ok := img.pixels[i][j]; val && ok{
 			return 1
-		} else {
+		} else if ok {
 			return 0
 		}
 	}
-	// images are infinite with unlit pixels
-	return 0
+	// images are infinite with either all lit or all unlit pixels
+	return img.parity
 }
+
 func (img *Image) enhanceTimes(algo []bool, n int) int {
 	var litPixels int
 	enhancedImg := img
 	for i := 0; i < n; i++ {
-		for i := 0; i < 2; i++ {
-			enhancedImg = enhancedImg.padding()
-		}
-		enhancedImg.print()
+		enhancedImg = enhancedImg.padding()
 		enhancedImg, litPixels = enhancedImg.enhance(algo)
-		enhancedImg.print()
 	}
 	return litPixels
 }
@@ -124,6 +117,20 @@ func (img *Image) enhance(algo []bool) (*Image, int) {
 			if enhancedImg.pixels[i][j] {
 				litPixels++
 			}
+		}
+	}
+
+	if img.parity == 0 {
+		if algo[0] {
+			enhancedImg.parity = 1
+		} else {
+			enhancedImg.parity = 0
+		}
+	} else {
+		if algo[len(algo)-1] {
+			enhancedImg.parity = 1
+		} else {
+			enhancedImg.parity = 0
 		}
 	}
 
@@ -160,7 +167,7 @@ func newImage(width int, height int) *Image {
 		pixels[i] = make(map[int]bool, height)
 	}
 
-	return &Image{pixels, width, height}
+	return &Image{pixels, 0, width, height}
 }
 
 func pow2(n int) int {
