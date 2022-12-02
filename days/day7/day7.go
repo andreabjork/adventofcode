@@ -34,7 +34,7 @@ func day7(inputFile string, d func(m int, x int) int) {
 		if x < minM {
 			minM = x
 		}
-		if x > minM {
+		if x > maxM {
 			maxM = x
 		}
 	}
