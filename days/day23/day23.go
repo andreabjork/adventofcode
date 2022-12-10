@@ -7,12 +7,18 @@ import (
 )
 
 func Day23(inputFile string, part int) {
-	Play(inputFile)
+	if part == 0 {
+		min := Play(inputFile, 2)
+		fmt.Printf("Minimum fuel: %d\n", min)
+	} else {
+		min := Play(inputFile, 4)
+		fmt.Printf("Minimum fuel: %d\n", min)
+	}
 }
 
-func Play(inputFile string) {
+func Play(inputFile string, levels int ) int {
 	const MAX_INT = int(^uint(0) >> 1)
-	start := parseState(inputFile)
+	start := parseState(inputFile, levels)
 	game := &Game{MAX_INT, nil, start}
 	game.decisionTree()
 	// Show minimum game
@@ -21,8 +27,8 @@ func Play(inputFile string) {
 		s.show()
 		s = s.fromState
 	}
-	fmt.Printf("Minimum: %d\n", game.minCost)
 
+	return game.minCost
 }
 
 // ====
@@ -158,12 +164,17 @@ func (s *State) show() {
 		x := spaces[i]
 		fmt.Printf("#%s", string(s.board[1][x]))
 	}
-	fmt.Printf("###\n  ")
-	for i := 0; i < len(spaces); i++ {
-		x := spaces[i]
-		fmt.Printf("#%s", string(s.board[2][x]))
+	fmt.Printf("###\n")
+
+	for l := 2; l < len(s.board); l++ {
+		fmt.Printf("  ")
+		for i := 0; i < len(spaces); i++ {
+			x := spaces[i]
+			fmt.Printf("#%s", string(s.board[l][x]))
+		}
+		fmt.Printf("#\n")
 	}
-	fmt.Printf("#\n  #########\n\n")
+	fmt.Printf("  #########\n\n")
 }
 
 // ========
@@ -179,33 +190,50 @@ func (a *Amphipod) energy() int {
 	return map[rune]int{'A': 1, 'B': 10, 'C': 100, 'D': 1000}[a.subtype]
 }
 
-func (s *State) atHome(a *Amphipod) bool {
-	return (a.hpos == a.home() && a.vpos == 2) || (a.hpos == a.home() && a.vpos == 1 && s.board[2][a.home()] == a.subtype)
+func (s *State) blockedInRoom(a *Amphipod) bool {
+	// Everyone below (higher l) a must be the same type
+	for l := a.vpos-1; l > 0; l-- {
+		if s.board[l][a.hpos] != '.' {
+			return true
+		}
+	}
+	return false
 }
+
+func (s *State) atHome(a *Amphipod) bool {
+	if a.hpos == a.home() {
+		// Everyone below (higher l) a must be the same type
+		for l := a.vpos+1; l < len(s.board); l++ {
+			if ! (s.board[l][a.home()] == a.subtype) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
+}
+
 func (a *Amphipod) home() int{
 	return map[rune]int{'A': 2, 'B': 4, 'C': 6, 'D': 8}[a.subtype]
 }
 
 func (s *State) canGoHome(a *Amphipod) (bool, int) {
-	if s.atHome(a) {
-		return false, 0
-	}
-	if a.vpos == 2 && s.board[1][a.hpos] != '.' { // blocked in room
+	if s.atHome(a) || s.blockedInRoom(a) {
 		return false, 0
 	}
 
-	if s.board[2][a.home()] == '.' {
-		// Bottom space is empty, top space must also be empty
-		return s.hallwayFree(a.hpos, a.home()), 2
-	} else if s.board[2][a.home()] == a.subtype && s.board[1][a.home()] == '.' {
-		// Top space is empty, and bottom space is occupied by same type
-		return s.hallwayFree(a.hpos, a.home()), 1
+	for l := len(s.board)-1; l > 0; l-- {
+		if s.board[l][a.home()] == '.' {
+			return s.hallwayFree(a.hpos, a.home()), l
+		} else if s.board[l][a.home()] != a.subtype {
+			return false, -1
+		}
 	}
 	return false, -1
 }
 
 func (s *State) canGoHallway(a *Amphipod) (bool, []int) {
-	if s.atHome(a) || a.vpos == 0 || (a.vpos == 2 && s.board[1][a.hpos] != '.'){ // in hallway, or blocked in room
+	if s.atHome(a) || a.vpos == 0 || s.blockedInRoom(a) {
 		return false, []int{}
 	}
 
@@ -247,35 +275,34 @@ func createAmphipod(r rune, f int, i int) *Amphipod {
 }
 
 // The boring stuff: Parsing input. This can be hard coded anyway but lets support different starting states.
-func parseState(inputFile string) *State{
+func parseState(inputFile string, levels int) *State{
 	ls := util.LineScanner(inputFile)
 	_, _ = util.Read(ls)
 	_, _ = util.Read(ls)
 	board := [][]rune{
 		{'.','.','.','.','.','.','.','.','.','.','.'},
-		make([]rune, 4),
-		make([]rune, 4),
 	}
+
+	for l := 0; l < levels; l++ {
+		board = append(board, make([]rune, 4))
+	}
+
 	amphipods := []*Amphipod{}
 	// top rooms
 	line, _ := util.Read(ls)
 	re := regexp.MustCompile("#+([A-D])#([A-D])#([A-D])#([A-D])#+")
-	trunes := re.FindStringSubmatch(line)
-	line, _ = util.Read(ls)
-	brunes := re.FindStringSubmatch(line)
-
 	score := 0
-	board[1] = make([]rune,11)
-	board[2] = make([]rune,11)
-	spaces := []int{2,4,6,8}
-	for i := 0; i < len(spaces); i++ {
-		x := spaces[i]
-		board[1][x] = []rune(trunes[i+1])[0]
-		board[2][x] = []rune(brunes[i+1])[0]
-		upperA := createAmphipod(board[1][x], 1, x)
-		lowerA := createAmphipod(board[2][x], 2, x)
-		amphipods = append(amphipods, upperA)
-		amphipods = append(amphipods, lowerA)
+	for l := 1; l <= levels; l++ {
+		trunes := re.FindStringSubmatch(line)
+		board[l] = make([]rune,11)
+		spaces := []int{2,4,6,8}
+		for i := 0; i < len(spaces); i++ {
+			x := spaces[i]
+			board[l][x] = []rune(trunes[i+1])[0]
+			a := createAmphipod(board[l][x], l, x)
+			amphipods = append(amphipods, a)
+		}
+		line, _ = util.Read(ls)
 	}
 
 	s := &State{
