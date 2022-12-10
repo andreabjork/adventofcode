@@ -10,7 +10,7 @@ func TestReduction(t *testing.T) {
 		path     string
 		expected string
 	}{
-		{"testinputs/1.txt", "[[[[1,1],[2,2]],[3,3]],[4,4]]"},
+		{"testinputs/day23.txt", "[[[[1,1],[2,2]],[3,3]],[4,4]]"},
 		{"testinputs/2.txt", "[[[[3,0],[5,3]],[4,4]],[5,5]]"},
 		{"testinputs/3.txt", "[[[[5,0],[7,4]],[5,5]],[6,6]]"},
 		{"testinputs/4.txt", "[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]"},

@@ -9,7 +9,7 @@ func TestDeterministic(t *testing.T) {
 		path     string
 		expected int
 	}{
-		{"testinputs/1.txt", 739785},
+		{"testinputs/day23.txt", 739785},
 	}
 
 	for _, table := range tables {
@@ -26,7 +26,7 @@ func TestDirac(t *testing.T) {
 		path     string
 		expected int64
 	}{
-	{"testinputs/1.txt", 444356092776315},
+	{"testinputs/day23.txt", 444356092776315},
 	}
 
 	for _, table := range tables {
